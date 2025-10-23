@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, Heart, Shield, Star, Users, ChevronLeft, ChevronRight, Menu, X } from "lucide-react";
 import { useLanguage, LanguageToggle } from "@/contexts/LanguageContext";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   const { t } = useLanguage();
@@ -468,52 +469,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8 md:py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-            <div className="sm:col-span-2 md:col-span-1">
-              <div className="flex items-center space-x-2 mb-4">
-                <Heart className="h-5 w-5 md:h-6 md:w-6 text-gray-400" />
-                <span className="text-lg md:text-xl font-bold">Restart</span>
-              </div>
-              <p className="text-gray-400 text-sm md:text-base">
-                {t('home.trustedPartner')}
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">{t('home.footerServices')}</h3>
-              <ul className="space-y-1 md:space-y-2 text-gray-400 text-sm md:text-base">
-                <li>{t('home.footerServicesDiscovery')}</li>
-                <li>{t('home.footerServicesChiropractic')}</li>
-                <li>{t('home.footerServicesRecovery')}</li>
-                <li>{t('home.footerServicesRehabilitation')}</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">{t('home.footerCompany')}</h3>
-              <ul className="space-y-1 md:space-y-2 text-gray-400 text-sm md:text-base">
-                <li><Link href="/contact" className="hover:text-white transition-colors">{t('home.footerContact')}</Link></li>
-                <li><Link href="/privacy" className="hover:text-white transition-colors">{t('home.footerPrivacyPolicy')}</Link></li>
-                <li><Link href="/terms" className="hover:text-white transition-colors">{t('home.footerTermsOfService')}</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">{t('home.footerContactTitle')}</h3>
-              <ul className="space-y-1 md:space-y-2 text-gray-400 text-sm md:text-base">
-                <li>1413 Ave Manuel Fernandez Juncos</li>
-                <li>Suite 3G, San Juan, PR</li>
-                <li>(787) 404-6909</li>
-                <li>restartquiro@gmail.com</li>
-                <li className="text-xs text-gray-500 mt-2">{t('home.footerHours')}</li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-6 md:mt-8 pt-6 md:pt-8 text-center text-gray-400">
-            <p className="text-xs md:text-sm">{t('home.footerCopyright')}</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
