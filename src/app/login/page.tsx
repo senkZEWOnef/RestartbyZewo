@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Heart, Eye, EyeOff } from "lucide-react";
 import { useLanguage, LanguageToggle } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const { t } = useLanguage();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -20,33 +22,23 @@ export default function LoginPage() {
     setIsLoading(true);
     setError("");
 
-    // Simulate login process
-    setTimeout(() => {
-      if (email && password) {
-        // Store basic patient info in localStorage for demo
-        localStorage.setItem("patient_auth", JSON.stringify({
-          id: "patient_" + Date.now(),
-          email: email,
-          firstName: "Demo",
-          lastName: "Patient",
-          phone: "(787) 000-0000",
-          loginTime: new Date().toISOString()
-        }));
-        
-        // Check if user was booking before login
-        const bookingIntent = localStorage.getItem("booking_intent");
-        if (bookingIntent) {
-          // Don't remove booking intent - let payment page handle it
-          window.location.href = "/payment";
-        } else {
-          // Redirect to patient dashboard
-          window.location.href = "/patient/dashboard";
-        }
+    const result = await login(email, password);
+    
+    if (result.success) {
+      // Check if user was booking before login
+      const bookingIntent = localStorage.getItem("booking_intent");
+      if (bookingIntent) {
+        // Don't remove booking intent - let payment page handle it
+        window.location.href = "/payment";
       } else {
-        setError("Please enter both email and password");
+        // Redirect to patient dashboard
+        window.location.href = "/patient/dashboard";
       }
-      setIsLoading(false);
-    }, 1000);
+    } else {
+      setError(result.error || "Login failed");
+    }
+    
+    setIsLoading(false);
   };
 
   return (

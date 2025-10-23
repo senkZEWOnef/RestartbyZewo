@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Heart, Eye, EyeOff } from "lucide-react";
 import { useLanguage, LanguageToggle } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function SignUpPage() {
   const { t } = useLanguage();
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -48,34 +50,35 @@ export default function SignUpPage() {
       return;
     }
 
-    // Simulate account creation
-    setTimeout(() => {
-      if (Object.values(formData).every(field => field.trim() !== "")) {
-        // Store patient info in localStorage for demo
-        localStorage.setItem("patient_auth", JSON.stringify({
-          id: "patient_" + Date.now(),
-          email: formData.email,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          phone: formData.phone,
-          loginTime: new Date().toISOString(),
-          isNewUser: true
-        }));
-        
-        // Check if user was booking before signup
-        const bookingIntent = localStorage.getItem("booking_intent");
-        if (bookingIntent) {
-          // Don't remove booking intent - let payment page handle it
-          window.location.href = "/payment";
-        } else {
-          // Redirect to patient dashboard
-          window.location.href = "/patient/dashboard";
-        }
-      } else {
-        setError("Please fill in all fields");
-      }
+    if (!Object.values(formData).every(field => field.trim() !== "")) {
+      setError("Please fill in all fields");
       setIsLoading(false);
-    }, 1000);
+      return;
+    }
+
+    const result = await register({
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phone: formData.phone,
+      password: formData.password
+    });
+
+    if (result.success) {
+      // Check if user was booking before signup
+      const bookingIntent = localStorage.getItem("booking_intent");
+      if (bookingIntent) {
+        // Don't remove booking intent - let payment page handle it
+        window.location.href = "/payment";
+      } else {
+        // Redirect to patient dashboard
+        window.location.href = "/patient/dashboard";
+      }
+    } else {
+      setError(result.error || "Registration failed");
+    }
+    
+    setIsLoading(false);
   };
 
   return (

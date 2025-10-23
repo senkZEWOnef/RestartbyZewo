@@ -15,9 +15,10 @@ import {
   Save,
   X
 } from "lucide-react";
+import { useAuth, getAuthHeaders } from "@/contexts/AuthContext";
 
 interface AvailabilitySlot {
-  id: number;
+  id: string;
   dayOfWeek: number;
   startTime: string;
   endTime: string;
@@ -26,39 +27,48 @@ interface AvailabilitySlot {
 
 export default function AdminSchedule() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, isAuthenticated, token, isLoading } = useAuth();
   const [availability, setAvailability] = useState<AvailabilitySlot[]>([]);
-  const [editingSlot, setEditingSlot] = useState<number | null>(null);
+  const [editingSlot, setEditingSlot] = useState<string | null>(null);
   const [isAddingSlot, setIsAddingSlot] = useState(false);
+  const [providerId, setProviderId] = useState<string>("");
+  const [dataLoading, setDataLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const auth = localStorage.getItem("restart_admin_auth");
-    if (auth === "true") {
-      setIsAuthenticated(true);
-      loadAvailability();
-    } else {
+    if (!isLoading && (!isAuthenticated || user?.role !== 'ADMIN')) {
       router.push("/admin");
+      return;
     }
-  }, [router]);
 
-  const loadAvailability = () => {
-    // Mock data - in real app this would come from API
-    const mockAvailability: AvailabilitySlot[] = [
-      { id: 1, dayOfWeek: 1, startTime: "08:00", endTime: "12:00", active: true },
-      { id: 2, dayOfWeek: 1, startTime: "13:00", endTime: "19:00", active: true },
-      { id: 3, dayOfWeek: 2, startTime: "08:00", endTime: "12:00", active: true },
-      { id: 4, dayOfWeek: 2, startTime: "13:00", endTime: "19:00", active: true },
-      { id: 5, dayOfWeek: 3, startTime: "08:00", endTime: "12:00", active: true },
-      { id: 6, dayOfWeek: 3, startTime: "13:00", endTime: "19:00", active: true },
-      { id: 7, dayOfWeek: 4, startTime: "08:00", endTime: "12:00", active: true },
-      { id: 8, dayOfWeek: 4, startTime: "13:00", endTime: "19:00", active: true },
-      { id: 9, dayOfWeek: 5, startTime: "08:00", endTime: "12:00", active: true },
-      { id: 10, dayOfWeek: 5, startTime: "13:00", endTime: "19:00", active: true },
-    ];
-    setAvailability(mockAvailability);
+    if (isAuthenticated && user?.role === 'ADMIN' && token) {
+      loadAvailability();
+    }
+  }, [isAuthenticated, user, token, isLoading, router]);
+
+  const loadAvailability = async () => {
+    if (!token) return;
+
+    try {
+      const headers = getAuthHeaders(token);
+      const response = await fetch('/api/admin/availability', { headers });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setAvailability(data.availability);
+        setProviderId(data.providerId);
+      } else {
+        setError('Failed to load availability data');
+      }
+    } catch (error) {
+      console.error('Error loading availability:', error);
+      setError('Failed to load availability data');
+    } finally {
+      setDataLoading(false);
+    }
   };
 
-  if (!isAuthenticated) {
+  if (isLoading || dataLoading || !isAuthenticated || user?.role !== 'ADMIN') {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-white">Loading...</div>
@@ -86,25 +96,112 @@ export default function AdminSchedule() {
     return acc;
   }, {} as Record<number, AvailabilitySlot[]>);
 
-  const handleSaveSlot = (slot: AvailabilitySlot) => {
-    if (editingSlot) {
-      setAvailability(prev => prev.map(s => s.id === editingSlot ? slot : s));
-      setEditingSlot(null);
-    } else {
-      const newSlot = { ...slot, id: Date.now() };
-      setAvailability(prev => [...prev, newSlot]);
-      setIsAddingSlot(false);
+  const handleSaveSlot = async (slot: AvailabilitySlot) => {
+    if (!token) return;
+
+    try {
+      const headers = getAuthHeaders(token);
+
+      if (editingSlot) {
+        // Update existing slot
+        const response = await fetch(`/api/admin/availability/${editingSlot}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({
+            dayOfWeek: slot.dayOfWeek,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            active: slot.active
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setAvailability(prev => prev.map(s => s.id === editingSlot ? data.availability : s));
+          setEditingSlot(null);
+        } else {
+          const errorData = await response.json();
+          setError(errorData.error || 'Failed to update availability slot');
+        }
+      } else {
+        // Create new slot
+        const response = await fetch('/api/admin/availability', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            dayOfWeek: slot.dayOfWeek,
+            startTime: slot.startTime,
+            endTime: slot.endTime,
+            providerId
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setAvailability(prev => [...prev, data.availability]);
+          setIsAddingSlot(false);
+        } else {
+          const errorData = await response.json();
+          setError(errorData.error || 'Failed to create availability slot');
+        }
+      }
+    } catch (error) {
+      console.error('Error saving slot:', error);
+      setError('Failed to save availability slot');
     }
   };
 
-  const handleDeleteSlot = (slotId: number) => {
-    setAvailability(prev => prev.filter(s => s.id !== slotId));
+  const handleDeleteSlot = async (slotId: string) => {
+    if (!token) return;
+
+    try {
+      const headers = getAuthHeaders(token);
+      const response = await fetch(`/api/admin/availability/${slotId}`, {
+        method: 'DELETE',
+        headers
+      });
+
+      if (response.ok) {
+        setAvailability(prev => prev.filter(s => s.id !== slotId));
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to delete availability slot');
+      }
+    } catch (error) {
+      console.error('Error deleting slot:', error);
+      setError('Failed to delete availability slot');
+    }
   };
 
-  const toggleSlotActive = (slotId: number) => {
-    setAvailability(prev => prev.map(s => 
-      s.id === slotId ? { ...s, active: !s.active } : s
-    ));
+  const toggleSlotActive = async (slotId: string) => {
+    if (!token) return;
+
+    const slot = availability.find(s => s.id === slotId);
+    if (!slot) return;
+
+    try {
+      const headers = getAuthHeaders(token);
+      const response = await fetch(`/api/admin/availability/${slotId}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+          active: !slot.active
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAvailability(prev => prev.map(s => 
+          s.id === slotId ? data.availability : s
+        ));
+      } else {
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to toggle availability slot');
+      }
+    } catch (error) {
+      console.error('Error toggling slot:', error);
+      setError('Failed to toggle availability slot');
+    }
   };
 
   const AvailabilitySlotEditor = ({ 
@@ -216,6 +313,19 @@ export default function AdminSchedule() {
       </header>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-900/50 border border-red-700 text-red-200 px-4 py-2 rounded-md mb-6">
+            {error}
+            <button 
+              onClick={() => setError("")}
+              className="ml-2 text-red-400 hover:text-red-300"
+            >
+              ×
+            </button>
+          </div>
+        )}
+
         {/* Current Hours Overview */}
         <Card className="bg-gray-900 border-gray-800 mb-6">
           <CardHeader>

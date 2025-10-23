@@ -16,45 +16,53 @@ datasource db {
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  name      String?
+  firstName String
+  lastName  String
   phone     String?
+  password  String
   role      Role     @default(PATIENT)
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   appointments Appointment[]
   payments     Payment[]
+  sentMessages     Message[] @relation("MessageFrom")
+  receivedMessages Message[] @relation("MessageTo")
 
   @@map("users")
 }
 
 model Provider {
-  id           String @id @default(cuid())
-  name         String
-  email        String @unique
-  bio          String?
-  specialties  String[]
-  imageUrl     String?
-  active       Boolean @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String   @unique
+  phone       String?
+  bio         String?
+  specialties String[]
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  appointments  Appointment[]
-  availability  Availability[]
-  services      ProviderService[]
+  appointments Appointment[]
+  availability Availability[]
+  services     ProviderService[]
 
   @@map("providers")
 }
 
 model Service {
-  id          String  @id @default(cuid())
+  id          String          @id @default(cuid())
   name        String
   description String?
-  duration    Int     // duration in minutes
-  price       Int     // price in cents
-  active      Boolean @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  duration    Int             // duration in minutes
+  price       Int             // price in cents
+  category    ServiceCategory @default(GENERAL)
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   appointments     Appointment[]
   providerServices ProviderService[]
@@ -127,6 +135,23 @@ model Payment {
   @@map("payments")
 }
 
+model Message {
+  id          String      @id @default(cuid())
+  fromUserId  String
+  toUserId    String
+  subject     String
+  content     String
+  isRead      Boolean     @default(false)
+  messageType MessageType @default(GENERAL)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  fromUser User @relation("MessageFrom", fields: [fromUserId], references: [id])
+  toUser   User @relation("MessageTo", fields: [toUserId], references: [id])
+
+  @@map("messages")
+}
+
 model AuditLog {
   id        String   @id @default(cuid())
   userId    String?
@@ -158,4 +183,29 @@ enum PaymentStatus {
   COMPLETED
   FAILED
   REFUNDED
+}
+
+enum ServiceCategory {
+  CONSULTATION
+  EVALUATION
+  TREATMENT
+  RECOVERY
+  REHABILITATION
+  MEDICAL
+  GENERAL
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  INSURANCE
+  BANK_TRANSFER
+}
+
+enum MessageType {
+  GENERAL
+  SYSTEM
+  APPOINTMENT
+  TREATMENT
+  BILLING
 }

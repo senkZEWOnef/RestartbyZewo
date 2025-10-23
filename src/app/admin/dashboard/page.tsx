@@ -19,26 +19,79 @@ import {
   MessageSquare,
   Eye
 } from "lucide-react";
+import { useAuth, getAuthHeaders } from "@/contexts/AuthContext";
+
+interface AdminStats {
+  todayAppointments: number;
+  totalPatients: number;
+  pendingAppointments: number;
+  monthlyRevenue: number;
+  unreadMessages: number;
+}
+
+interface RecentAppointment {
+  id: string;
+  startTime: string;
+  status: string;
+  patient: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  service: {
+    name: string;
+  };
+}
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, isAuthenticated, logout, isLoading, token } = useAuth();
+  const [stats, setStats] = useState<AdminStats>({
+    todayAppointments: 0,
+    totalPatients: 0,
+    pendingAppointments: 0,
+    monthlyRevenue: 0,
+    unreadMessages: 0
+  });
+  const [recentAppointments, setRecentAppointments] = useState<RecentAppointment[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
-    const auth = localStorage.getItem("restart_admin_auth");
-    if (auth === "true") {
-      setIsAuthenticated(true);
-    } else {
+    if (!isLoading && (!isAuthenticated || user?.role !== 'ADMIN')) {
       router.push("/admin");
+      return;
     }
-  }, [router]);
+
+    if (isAuthenticated && user?.role === 'ADMIN' && token) {
+      fetchAdminData();
+    }
+  }, [isAuthenticated, user, isLoading, router, token]);
+
+  const fetchAdminData = async () => {
+    if (!token) return;
+
+    try {
+      const headers = getAuthHeaders(token);
+      const response = await fetch('/api/admin/stats', { headers });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data.stats);
+        setRecentAppointments(data.recentAppointments);
+      }
+    } catch (error) {
+      console.error('Error fetching admin data:', error);
+    } finally {
+      setDataLoading(false);
+    }
+  };
 
   const handleLogout = () => {
-    localStorage.removeItem("restart_admin_auth");
+    logout();
     router.push("/admin");
   };
 
-  if (!isAuthenticated) {
+  if (isLoading || dataLoading || !isAuthenticated || user?.role !== 'ADMIN') {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-white">Loading...</div>
@@ -46,20 +99,6 @@ export default function AdminDashboard() {
     );
   }
 
-  // Mock data for dashboard
-  const stats = {
-    todayAppointments: 6,
-    weeklyRevenue: 1250,
-    monthlyPatients: 48,
-    pendingBookings: 3
-  };
-
-  const recentAppointments = [
-    { id: 1, patient: "Maria Rodriguez", service: "Discovery Call", time: "9:00 AM", status: "confirmed" },
-    { id: 2, patient: "Carlos Mendez", service: "Chiropractic Visit", time: "10:30 AM", status: "pending" },
-    { id: 3, patient: "Ana Vasquez", service: "Recovery Visit", time: "2:00 PM", status: "confirmed" },
-    { id: 4, patient: "Luis Rivera", service: "Initial Evaluation", time: "4:00 PM", status: "pending" },
-  ];
 
   const messages = [
     { id: 1, name: "Sofia Martinez", message: "Question about scheduling availability for next week", time: "2 hours ago" },
@@ -77,7 +116,7 @@ export default function AdminDashboard() {
               <Heart className="h-8 w-8 text-gray-400" />
               <div>
                 <h1 className="text-xl font-bold text-white">Restart Admin</h1>
-                <p className="text-sm text-gray-400">Welcome back, Dr. Acevedo</p>
+                <p className="text-sm text-gray-400">Welcome back, {user.firstName} {user.lastName}</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -106,7 +145,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-white">{stats.todayAppointments}</div>
-              <p className="text-xs text-gray-400">2 confirmed, 1 pending</p>
+              <p className="text-xs text-gray-400">appointments scheduled</p>
             </CardContent>
           </Card>
 
@@ -156,6 +195,17 @@ export default function AdminDashboard() {
             <Link href="/admin/schedule">
               <Clock className="h-6 w-6 mb-2" />
               Schedule
+            </Link>
+          </Button>
+          <Button asChild className="h-20 flex-col relative" variant="outline">
+            <Link href="/admin/messages">
+              <MessageSquare className="h-6 w-6 mb-2" />
+              Messages
+              {stats.unreadMessages > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {stats.unreadMessages}
+                </span>
+              )}
             </Link>
           </Button>
           <Button asChild className="h-20 flex-col" variant="outline">

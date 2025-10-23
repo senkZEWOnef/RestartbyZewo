@@ -18,45 +18,86 @@ import {
   ChevronRight 
 } from "lucide-react";
 import { useLanguage, LanguageToggle } from "@/contexts/LanguageContext";
+import { useAuth, getAuthHeaders } from "@/contexts/AuthContext";
 
-interface PatientData {
+interface Appointment {
   id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  loginTime: string;
-  isNewUser?: boolean;
+  startTime: string;
+  endTime: string;
+  status: string;
+  service: {
+    name: string;
+    duration: number;
+    price: number;
+  };
+  provider: {
+    firstName: string;
+    lastName: string;
+  };
+}
+
+interface Message {
+  id: string;
+  subject: string;
+  content: string;
+  createdAt: string;
+  isRead: boolean;
+  fromUser: {
+    firstName: string;
+    lastName: string;
+  };
 }
 
 export default function PatientDashboard() {
   const { t } = useLanguage();
-  const [patientData, setPatientData] = useState<PatientData | null>(null);
+  const { user, token, isAuthenticated, logout, isLoading: authLoading } = useAuth();
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is authenticated
-    const authData = localStorage.getItem("patient_auth");
-    if (authData) {
-      try {
-        const patient = JSON.parse(authData);
-        setPatientData(patient);
-      } catch (error) {
-        console.error("Error parsing patient data:", error);
-        window.location.href = "/login";
-      }
-    } else {
+    if (!authLoading && !isAuthenticated) {
       window.location.href = "/login";
+      return;
     }
-    setIsLoading(false);
-  }, []);
+
+    if (isAuthenticated && token) {
+      fetchDashboardData();
+    }
+  }, [isAuthenticated, token, authLoading]);
+
+  const fetchDashboardData = async () => {
+    if (!token) return;
+
+    try {
+      const headers = getAuthHeaders(token);
+      
+      // Fetch appointments
+      const appointmentsResponse = await fetch('/api/appointments', { headers });
+      if (appointmentsResponse.ok) {
+        const appointmentsData = await appointmentsResponse.json();
+        setAppointments(appointmentsData.appointments || []);
+      }
+
+      // Fetch messages
+      const messagesResponse = await fetch('/api/messages', { headers });
+      if (messagesResponse.ok) {
+        const messagesData = await messagesResponse.json();
+        setMessages(messagesData.messages || []);
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLogout = () => {
-    localStorage.removeItem("patient_auth");
+    logout();
     window.location.href = "/";
   };
 
-  if (isLoading) {
+  if (authLoading || isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-white text-xl">{t('common.loading')}</div>
@@ -64,45 +105,10 @@ export default function PatientDashboard() {
     );
   }
 
-  if (!patientData) {
+  if (!isAuthenticated || !user) {
     return null;
   }
 
-  const upcomingAppointments = [
-    {
-      id: "1",
-      service: "Chiropractic Visit",
-      provider: "Dr. Gilliany Acevedo, D.C.",
-      date: "2024-01-15",
-      time: "10:00 AM",
-      status: "confirmed"
-    },
-    {
-      id: "2", 
-      service: "Recovery Visit",
-      provider: "Dr. Gilliany Acevedo, D.C.",
-      date: "2024-01-22",
-      time: "2:30 PM",
-      status: "pending"
-    }
-  ];
-
-  const recentMessages = [
-    {
-      id: "1",
-      subject: "Appointment Reminder",
-      from: "Restart Team",
-      date: "2024-01-10",
-      preview: "Your appointment is scheduled for tomorrow at 10:00 AM..."
-    },
-    {
-      id: "2",
-      subject: "New Treatment Plan Available", 
-      from: "Dr. Acevedo",
-      date: "2024-01-08",
-      preview: "Based on your recent evaluation, I've prepared a new..."
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-black">
@@ -118,7 +124,7 @@ export default function PatientDashboard() {
               <LanguageToggle />
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-300 hidden md:block">
-                  {patientData.firstName} {patientData.lastName}
+                  {user.firstName} {user.lastName}
                 </span>
                 <Button
                   variant="outline"
@@ -140,13 +146,10 @@ export default function PatientDashboard() {
           {/* Welcome Section */}
           <div className="mb-6 md:mb-8">
             <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-              {t('auth.welcomeBack')}, {patientData.firstName}!
+              {t('auth.welcomeBack')}, {user.firstName}!
             </h1>
             <p className="text-gray-300">
-              {patientData.isNewUser 
-                ? "Welcome to your patient portal. Manage your appointments and health journey here."
-                : "Here's what's happening with your care."
-              }
+              Here's what's happening with your care.
             </p>
           </div>
 
@@ -206,32 +209,32 @@ export default function PatientDashboard() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {upcomingAppointments.length > 0 ? (
+                  {appointments.length > 0 ? (
                     <div className="space-y-4">
-                      {upcomingAppointments.map((appointment) => (
+                      {appointments.map((appointment) => (
                         <div key={appointment.id} className="border border-gray-700 rounded-lg p-4">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
-                              <h4 className="font-semibold text-white mb-1">{appointment.service}</h4>
-                              <p className="text-sm text-gray-300 mb-2">{appointment.provider}</p>
+                              <h4 className="font-semibold text-white mb-1">{appointment.service.name}</h4>
+                              <p className="text-sm text-gray-300 mb-2">{appointment.provider.firstName} {appointment.provider.lastName}</p>
                               <div className="flex items-center space-x-4 text-xs text-gray-400">
                                 <span className="flex items-center">
                                   <Calendar className="h-3 w-3 mr-1" />
-                                  {new Date(appointment.date).toLocaleDateString()}
+                                  {new Date(appointment.startTime).toLocaleDateString()}
                                 </span>
                                 <span className="flex items-center">
                                   <Clock className="h-3 w-3 mr-1" />
-                                  {appointment.time}
+                                  {new Date(appointment.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </span>
                               </div>
                             </div>
                             <div className="flex flex-col space-y-2">
                               <span className={`px-2 py-1 rounded text-xs ${
-                                appointment.status === 'confirmed' 
+                                appointment.status === 'CONFIRMED' 
                                   ? 'bg-green-900 text-green-200' 
                                   : 'bg-yellow-900 text-yellow-200'
                               }`}>
-                                {appointment.status === 'confirmed' ? t('admin.confirmed') : t('admin.pending')}
+                                {appointment.status === 'CONFIRMED' ? t('admin.confirmed') : t('admin.pending')}
                               </span>
                               <Button variant="outline" size="sm" className="text-xs">
                                 {t('patient.viewDetails')}
@@ -261,16 +264,16 @@ export default function PatientDashboard() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {recentMessages.length > 0 ? (
+                  {messages.length > 0 ? (
                     <div className="space-y-4">
-                      {recentMessages.map((message) => (
+                      {messages.map((message) => (
                         <div key={message.id} className="border border-gray-700 rounded-lg p-4 hover:bg-gray-800 transition-colors cursor-pointer">
                           <div className="flex items-start justify-between mb-2">
                             <h4 className="font-semibold text-white text-sm">{message.subject}</h4>
-                            <span className="text-xs text-gray-400">{new Date(message.date).toLocaleDateString()}</span>
+                            <span className="text-xs text-gray-400">{new Date(message.createdAt).toLocaleDateString()}</span>
                           </div>
-                          <p className="text-xs text-gray-400 mb-2">From: {message.from}</p>
-                          <p className="text-sm text-gray-300">{message.preview}</p>
+                          <p className="text-xs text-gray-400 mb-2">From: {message.fromUser.firstName} {message.fromUser.lastName}</p>
+                          <p className="text-sm text-gray-300">{message.content.substring(0, 100)}...</p>
                         </div>
                       ))}
                     </div>
@@ -292,15 +295,15 @@ export default function PatientDashboard() {
                   <div className="space-y-3">
                     <div>
                       <p className="text-xs text-gray-400 uppercase tracking-wide">Name</p>
-                      <p className="text-sm text-white">{patientData.firstName} {patientData.lastName}</p>
+                      <p className="text-sm text-white">{user.firstName} {user.lastName}</p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-400 uppercase tracking-wide">Email</p>
-                      <p className="text-sm text-white">{patientData.email}</p>
+                      <p className="text-sm text-white">{user.email}</p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-400 uppercase tracking-wide">Phone</p>
-                      <p className="text-sm text-white">{patientData.phone}</p>
+                      <p className="text-sm text-white">{user.phone}</p>
                     </div>
                     <Link href="/patient/profile">
                       <Button variant="outline" size="sm" className="w-full mt-4">
