@@ -432,7 +432,6 @@ export default function AdminServicesPage() {
                 </Button>
               </div>
             </form>
-            </div>
           </div>
         </div>
       )}
