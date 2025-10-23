@@ -1,13 +1,111 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock, Heart, Shield, Star, Users } from "lucide-react";
+import { Calendar, Clock, Heart, Shield, Star, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage, LanguageToggle } from "@/contexts/LanguageContext";
 
 export default function Home() {
   const { t } = useLanguage();
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedTime, setSelectedTime] = useState<string>("");
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  // Available time slots
+  const timeSlots = [
+    "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", 
+    "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", 
+    "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", 
+    "5:00 PM", "5:30 PM", "6:00 PM", "6:30 PM", "7:00 PM"
+  ];
+
+  // Generate calendar days
+  const generateCalendarDays = () => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(firstDay.getDate() - firstDay.getDay());
+    
+    const days = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    for (let i = 0; i < 42; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      
+      const isCurrentMonth = date.getMonth() === month;
+      const isPast = date < today;
+      const isToday = date.getTime() === today.getTime();
+      const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+      const dateString = date.toISOString().split('T')[0];
+      
+      days.push({
+        date,
+        dateString,
+        day: date.getDate(),
+        isCurrentMonth,
+        isPast,
+        isToday,
+        isWeekend,
+        isAvailable: isCurrentMonth && !isPast && !isWeekend
+      });
+    }
+    
+    return days;
+  };
+
+  const handleDateSelect = (dateString: string, isAvailable: boolean) => {
+    if (isAvailable) {
+      setSelectedDate(dateString);
+      setSelectedTime(""); // Reset selected time when date changes
+    }
+  };
+
+  const handleTimeSelect = (time: string) => {
+    setSelectedTime(time);
+  };
+
+  const handleBookAppointment = () => {
+    if (selectedDate && selectedTime) {
+      // Store the selected date and time, then redirect to booking
+      localStorage.setItem("homepage_booking", JSON.stringify({
+        date: selectedDate,
+        time: selectedTime
+      }));
+      window.location.href = "/book";
+    }
+  };
+
+  const nextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1));
+  };
+
+  const prevMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1));
+  };
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const monthNamesEs = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+  ];
+
+  const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const weekdayNamesEs = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+  const { language } = useLanguage();
+  const currentMonthNames = language === 'es' ? monthNamesEs : monthNames;
+  const currentWeekdayNames = language === 'es' ? weekdayNamesEs : weekdayNames;
+
   return (
     <div className="min-h-screen bg-black">
       {/* Header */}
@@ -144,6 +242,159 @@ export default function Home() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Booking Calendar */}
+      <section className="container mx-auto px-4 py-8 md:py-16">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">{t('home.bookingCalendar')}</h2>
+            <p className="text-lg text-gray-300">{t('home.bookingCalendarDesc')}</p>
+          </div>
+          
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Calendar */}
+            <Card className="bg-gray-900 border-gray-800">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-white">{t('home.selectDate')}</CardTitle>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={prevMonth}
+                      className="p-2"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-white font-medium min-w-[120px] text-center">
+                      {currentMonthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={nextMonth}
+                      className="p-2"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {/* Weekday headers */}
+                <div className="grid grid-cols-7 gap-1 mb-2">
+                  {currentWeekdayNames.map(day => (
+                    <div key={day} className="text-center text-sm font-medium text-gray-400 py-2">
+                      {day}
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Calendar grid */}
+                <div className="grid grid-cols-7 gap-1">
+                  {generateCalendarDays().map((day, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleDateSelect(day.dateString, day.isAvailable)}
+                      disabled={!day.isAvailable}
+                      className={`
+                        aspect-square flex items-center justify-center text-sm rounded-md transition-colors
+                        ${!day.isCurrentMonth 
+                          ? 'text-gray-600 cursor-not-allowed' 
+                          : day.isPast 
+                          ? 'text-gray-600 cursor-not-allowed'
+                          : day.isWeekend
+                          ? 'text-gray-500 cursor-not-allowed'
+                          : day.isToday
+                          ? 'bg-blue-600 text-white hover:bg-blue-700'
+                          : selectedDate === day.dateString
+                          ? 'bg-gray-600 text-white'
+                          : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                        }
+                      `}
+                    >
+                      {day.day}
+                    </button>
+                  ))}
+                </div>
+                
+                <div className="mt-4 text-xs text-gray-400 text-center">
+                  <p>• Weekends are not available</p>
+                  <p>• Select a weekday to see available times</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Available Time Slots */}
+            <Card className="bg-gray-900 border-gray-800">
+              <CardHeader>
+                <CardTitle className="text-white">{t('home.availableSlots')}</CardTitle>
+                <CardDescription>
+                  {selectedDate 
+                    ? `Available times for ${new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        month: 'long', 
+                        day: 'numeric'
+                      })}`
+                    : 'Select a date to see available times'
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {selectedDate ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {timeSlots.map((time) => (
+                        <button
+                          key={time}
+                          onClick={() => handleTimeSelect(time)}
+                          className={`
+                            p-3 text-sm border rounded-md transition-colors
+                            ${selectedTime === time
+                              ? 'border-gray-500 bg-gray-700 text-white'
+                              : 'border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500 hover:bg-gray-700'
+                            }
+                          `}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {selectedTime && (
+                      <div className="border-t border-gray-700 pt-4">
+                        <div className="bg-gray-800 rounded-lg p-4 mb-4">
+                          <h4 className="font-medium text-white mb-2">Selected Appointment</h4>
+                          <p className="text-gray-300 text-sm">
+                            {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })} at {selectedTime}
+                          </p>
+                        </div>
+                        <Button 
+                          className="w-full" 
+                          onClick={handleBookAppointment}
+                        >
+                          <Calendar className="h-4 w-4 mr-2" />
+                          {t('home.bookThisSlot')}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Calendar className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+                    <p className="text-gray-400">{t('home.selectTimeFirst')}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>

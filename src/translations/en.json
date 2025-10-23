@@ -54,7 +54,14 @@
     "footerTermsOfService": "Terms of Service",
     "footerContactTitle": "Contact",
     "footerHours": "Hours: 8:00 AM - 7:00 PM",
-    "footerCopyright": "© 2024 Restart Spine, Rehab & Recovery. All rights reserved."
+    "footerCopyright": "© 2024 Restart Spine, Rehab & Recovery. All rights reserved.",
+    "bookingCalendar": "Book Your Appointment",
+    "bookingCalendarDesc": "Select a date to see available appointment times",
+    "selectDate": "Select a Date",
+    "availableSlots": "Available Times",
+    "noSlotsAvailable": "No slots available for this date",
+    "bookThisSlot": "Book This Time",
+    "selectTimeFirst": "Select a time slot to continue"
   },
   "services": {
     "title": "Our Services",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,6 +32,22 @@ export default function BookingPage() {
   const [selectedProvider, setSelectedProvider] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
+
+  // Check for homepage booking data on component mount
+  useEffect(() => {
+    const homepageBooking = localStorage.getItem("homepage_booking");
+    if (homepageBooking) {
+      try {
+        const bookingData = JSON.parse(homepageBooking);
+        setSelectedDate(bookingData.date);
+        setSelectedTime(bookingData.time);
+        // Clear the homepage booking data
+        localStorage.removeItem("homepage_booking");
+      } catch (error) {
+        console.error("Error parsing homepage booking data:", error);
+      }
+    }
+  }, []);
 
   const selectedServiceData = services.find(s => s.id === selectedService);
   const availableProviders = providers.filter(p => 
