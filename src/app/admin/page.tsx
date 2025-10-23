@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, Eye, EyeOff } from "lucide-react";
@@ -44,8 +45,24 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md bg-gray-900 border-gray-800">
+    <div className="min-h-screen bg-black">
+      {/* Header */}
+      <header className="bg-gray-900 border-b border-gray-800">
+        <div className="container mx-auto px-4 py-3 md:py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center space-x-2">
+              <Heart className="h-5 w-5 md:h-6 md:w-6 text-gray-400" />
+              <span className="text-lg md:text-xl font-bold text-white">Restart</span>
+            </Link>
+            <Link href="/" className="text-gray-300 hover:text-white transition-colors text-sm">
+              Back to Website
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <Card className="w-full max-w-md bg-gray-900 border-gray-800">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Heart className="h-8 w-8 text-gray-400" />
@@ -121,6 +138,7 @@ export default function AdminLogin() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
