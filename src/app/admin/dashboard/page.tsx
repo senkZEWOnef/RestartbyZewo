@@ -17,7 +17,8 @@ import {
   BarChart3,
   LogOut,
   MessageSquare,
-  Eye
+  Eye,
+  Stethoscope
 } from "lucide-react";
 import { useAuth, getAuthHeaders } from "@/contexts/AuthContext";
 
@@ -184,11 +185,17 @@ export default function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
           <Button asChild className="h-20 flex-col">
             <Link href="/admin/appointments">
               <Calendar className="h-6 w-6 mb-2" />
               Appointments
+            </Link>
+          </Button>
+          <Button asChild className="h-20 flex-col" variant="outline">
+            <Link href="/admin/services">
+              <Stethoscope className="h-6 w-6 mb-2" />
+              Services
             </Link>
           </Button>
           <Button asChild className="h-20 flex-col" variant="outline">

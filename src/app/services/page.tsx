@@ -111,16 +111,10 @@ export default function ServicesPage() {
       <header className="bg-gray-900 border-b border-gray-800">
         <div className="container mx-auto px-4 py-3 md:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 md:space-x-4">
-              <Link href="/" className="flex items-center text-gray-300 hover:text-white transition-colors">
-                <ArrowLeft className="h-4 w-4 md:h-5 md:w-5 mr-1 md:mr-2" />
-                <span className="text-sm md:text-base">{t('navigation.backToHome')}</span>
-              </Link>
-              <div className="flex items-center space-x-2">
-                <Heart className="h-5 w-5 md:h-6 md:w-6 text-gray-400" />
-                <span className="text-lg md:text-xl font-bold text-white">Restart</span>
-              </div>
-            </div>
+            <Link href="/" className="flex items-center space-x-2">
+              <Heart className="h-5 w-5 md:h-6 md:w-6 text-gray-400" />
+              <span className="text-lg md:text-xl font-bold text-white">Restart</span>
+            </Link>
             <LanguageToggle />
           </div>
         </div>

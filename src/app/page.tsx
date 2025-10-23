@@ -113,10 +113,10 @@ export default function Home() {
       {/* Header */}
       <header className="container mx-auto px-4 py-4 md:py-6">
         <nav className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2">
             <Heart className="h-6 w-6 md:h-8 md:w-8 text-gray-400" />
             <span className="text-xl md:text-2xl font-bold text-white">Restart</span>
-          </div>
+          </Link>
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
