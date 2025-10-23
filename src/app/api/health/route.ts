@@ -1,27 +1,54 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 
 export async function GET() {
+  const healthCheck = {
+    status: 'checking',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+    platform: process.platform,
+    nodeVersion: process.version,
+    database: {
+      status: 'unknown',
+      url: process.env.DATABASE_URL ? 'configured' : 'missing',
+      error: null as string | null
+    },
+    env: {
+      DATABASE_URL: !!process.env.DATABASE_URL,
+      JWT_SECRET: !!process.env.JWT_SECRET,
+      NEXTAUTH_SECRET: !!process.env.NEXTAUTH_SECRET,
+      NEXTAUTH_URL: !!process.env.NEXTAUTH_URL
+    }
+  };
+
   try {
-    // Test database connection
-    await prisma.$queryRaw`SELECT 1`;
+    // Only test database if URL is available
+    if (process.env.DATABASE_URL) {
+      try {
+        const { prisma } = await import('@/lib/prisma');
+        await prisma.$queryRaw`SELECT 1`;
+        healthCheck.database.status = 'connected';
+      } catch (dbError) {
+        healthCheck.database.status = 'error';
+        healthCheck.database.error = dbError instanceof Error ? dbError.message : 'Database connection failed';
+      }
+    } else {
+      healthCheck.database.status = 'no_url';
+      healthCheck.database.error = 'DATABASE_URL not configured';
+    }
     
-    return NextResponse.json({
-      status: 'ok',
-      database: 'connected',
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV
+    healthCheck.status = healthCheck.database.status === 'connected' ? 'ok' : 'degraded';
+    
+    return NextResponse.json(healthCheck, {
+      status: healthCheck.status === 'ok' ? 200 : 503
     });
 
   } catch (error) {
     console.error('Health check failed:', error);
     
-    return NextResponse.json({
-      status: 'error',
-      database: 'disconnected',
-      error: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV
-    }, { status: 500 });
+    healthCheck.status = 'error';
+    healthCheck.database.status = 'error';
+    healthCheck.database.error = error instanceof Error ? error.message : 'Unknown error';
+    
+    return NextResponse.json(healthCheck, { status: 500 });
   }
 }
