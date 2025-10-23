@@ -168,6 +168,40 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Services Preview */}
+      <section className="bg-gray-900 py-8 md:py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-center text-white mb-8 md:mb-12">{t('home.ourServices')}</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {[
+              { name: "Discovery Call", duration: "15 min" },
+              { name: "Initial Evaluation", duration: "75 min" },
+              { name: "Chiropractic Visit", duration: "15 min" },
+              { name: "Recovery Visit", duration: "30 min" },
+              { name: "Relief & Movement", duration: "60+ min" },
+              { name: "Medical Plan Initial", duration: "varies" },
+            ].map((service) => (
+              <Card key={service.name} className="bg-gray-800 border-gray-700">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base md:text-lg text-white">{service.name}</CardTitle>
+                  <CardDescription className="flex items-center gap-2 text-gray-400 text-sm">
+                    <Clock className="h-3 w-3 md:h-4 md:w-4" />
+                    {service.duration}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="flex justify-center">
+                    <Button size="sm" className="text-xs md:text-sm" asChild>
+                      <Link href="/book">{t('navigation.book')}</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
       <section className="container mx-auto px-4 py-8 md:py-16">
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
@@ -206,41 +240,6 @@ export default function Home() {
               </CardDescription>
             </CardContent>
           </Card>
-        </div>
-      </section>
-
-      {/* Services Preview */}
-      <section className="bg-gray-900 py-8 md:py-16">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-center text-white mb-8 md:mb-12">{t('home.ourServices')}</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {[
-              { name: "Discovery Call", duration: "15 min", price: "Free" },
-              { name: "Initial Evaluation", duration: "75 min", price: "Contact" },
-              { name: "Chiropractic Visit", duration: "15 min", price: "$55" },
-              { name: "Recovery Visit", duration: "30 min", price: "Contact" },
-              { name: "Relief & Movement", duration: "60+ min", price: "Contact" },
-              { name: "Medical Plan Initial", duration: "varies", price: "Contact" },
-            ].map((service) => (
-              <Card key={service.name} className="bg-gray-800 border-gray-700">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base md:text-lg text-white">{service.name}</CardTitle>
-                  <CardDescription className="flex items-center gap-2 text-gray-400 text-sm">
-                    <Clock className="h-3 w-3 md:h-4 md:w-4" />
-                    {service.duration}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl md:text-2xl font-bold text-gray-300">{service.price}</span>
-                    <Button size="sm" className="text-xs md:text-sm" asChild>
-                      <Link href="/book">{t('navigation.book')}</Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
         </div>
       </section>
 
