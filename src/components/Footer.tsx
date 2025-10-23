@@ -48,7 +48,18 @@ export default function Footer() {
         </div>
         <div className="border-t border-gray-800 mt-6 md:mt-8 pt-6 md:pt-8 text-center text-gray-400">
           <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
-            <p className="text-xs md:text-sm">{t('home.footerCopyright')}</p>
+            <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
+              <p className="text-xs md:text-sm">{t('home.footerCopyright')}</p>
+              <a 
+                href="https://byzewo.com/engineer" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs text-gray-600 hover:text-gray-400 transition-colors"
+                style={{ fontSize: '10px' }}
+              >
+                Built by Zewo
+              </a>
+            </div>
             <Link 
               href="/admin" 
               className="text-sm text-gray-300 hover:text-white transition-colors font-mono bg-gray-800 px-2 py-1 rounded"
