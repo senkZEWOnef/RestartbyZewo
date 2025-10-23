@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock, Heart, Shield, Star, Users, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, Clock, Heart, Shield, Star, Users, ChevronLeft, ChevronRight, Menu, X } from "lucide-react";
 import { useLanguage, LanguageToggle } from "@/contexts/LanguageContext";
 
 export default function Home() {
@@ -12,6 +12,7 @@ export default function Home() {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Available time slots
   const timeSlots = [
@@ -130,22 +131,44 @@ export default function Home() {
           </div>
 
           {/* Mobile Navigation */}
-          <div className="flex md:hidden items-center space-x-2">
+          <div className="flex md:hidden items-center space-x-3">
             <LanguageToggle />
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/login">{t('navigation.signIn')}</Link>
-            </Button>
-            <Button size="sm" asChild>
-              <Link href="/book">{t('navigation.book')}</Link>
-            </Button>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="text-gray-300 hover:text-white transition-colors"
+            >
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
         </nav>
         
-        {/* Mobile Menu Links */}
-        <div className="md:hidden mt-4 flex justify-center space-x-6">
-          <Link href="/services" className="text-sm text-gray-300 hover:text-white transition-colors">{t('navigation.services')}</Link>
-          <Link href="/contact" className="text-sm text-gray-300 hover:text-white transition-colors">{t('navigation.contact')}</Link>
-        </div>
+        {/* Mobile Menu Dropdown */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden mt-4 bg-gray-900 rounded-lg p-4 space-y-3">
+            <Link 
+              href="/services" 
+              className="block text-gray-300 hover:text-white transition-colors py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {t('navigation.services')}
+            </Link>
+            <Link 
+              href="/contact" 
+              className="block text-gray-300 hover:text-white transition-colors py-2"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {t('navigation.contact')}
+            </Link>
+            <div className="flex space-x-2 pt-2">
+              <Button variant="outline" size="sm" asChild className="flex-1">
+                <Link href="/login" onClick={() => setIsMobileMenuOpen(false)}>{t('navigation.signIn')}</Link>
+              </Button>
+              <Button size="sm" asChild className="flex-1">
+                <Link href="/book" onClick={() => setIsMobileMenuOpen(false)}>{t('navigation.book')}</Link>
+              </Button>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}

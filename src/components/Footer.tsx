@@ -52,7 +52,7 @@ export default function Footer() {
             <div className="flex items-center space-x-4">
               <Link 
                 href="/admin" 
-                className="text-xs text-gray-600 hover:text-gray-400 transition-colors font-mono"
+                className="text-xs text-gray-400 hover:text-gray-200 transition-colors font-mono"
               >
                 GA
               </Link>
