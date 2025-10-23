@@ -1,5 +1,5 @@
 [build]
-  command = "npx prisma generate && npm run build"
+  command = "./scripts/netlify-build.sh"
   publish = ".next"
 
 [build.environment]
@@ -10,8 +10,9 @@
   package = "@netlify/plugin-nextjs"
 
 [functions]
-  node_bundler = "esbuild"
-  external_node_modules = ["@prisma/client", "prisma"]
+  node_bundler = "nft"
+  external_node_modules = ["@prisma/client"]
+  included_files = ["node_modules/.prisma/client/query-engine-*"]
 
 [[headers]]
   for = "/api/*"
