@@ -23,11 +23,12 @@ function verifyAdminToken(request: NextRequest) {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     verifyAdminToken(request);
-    const contactId = params.id;
+    const resolvedParams = await params;
+    const contactId = resolvedParams.id;
 
     // Check if contact exists
     const contact = await prisma.contact.findUnique({

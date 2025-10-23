@@ -17,11 +17,12 @@ function verifyToken(request: NextRequest) {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const decoded = verifyToken(request);
-    const messageId = params.id;
+    const resolvedParams = await params;
+    const messageId = resolvedParams.id;
 
     // Check if message exists and user has permission to read it
     const message = await prisma.message.findUnique({

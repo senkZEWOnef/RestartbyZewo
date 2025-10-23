@@ -151,33 +151,33 @@ export default function AdminDashboard() {
 
           <Card className="bg-gray-900 border-gray-800">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-300">Weekly Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-300">Monthly Revenue</CardTitle>
               <DollarSign className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">${stats.weeklyRevenue}</div>
-              <p className="text-xs text-gray-400">+12% from last week</p>
+              <div className="text-2xl font-bold text-white">${stats.monthlyRevenue}</div>
+              <p className="text-xs text-gray-400">+12% from last month</p>
             </CardContent>
           </Card>
 
           <Card className="bg-gray-900 border-gray-800">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-300">Monthly Patients</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-300">Total Patients</CardTitle>
               <Users className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{stats.monthlyPatients}</div>
+              <div className="text-2xl font-bold text-white">{stats.totalPatients}</div>
               <p className="text-xs text-gray-400">8 new patients</p>
             </CardContent>
           </Card>
 
           <Card className="bg-gray-900 border-gray-800">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-300">Pending Bookings</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-300">Pending Appointments</CardTitle>
               <Clock className="h-4 w-4 text-gray-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{stats.pendingBookings}</div>
+              <div className="text-2xl font-bold text-white">{stats.pendingAppointments}</div>
               <p className="text-xs text-gray-400">Requires confirmation</p>
             </CardContent>
           </Card>
@@ -236,11 +236,11 @@ export default function AdminDashboard() {
                 {recentAppointments.map((appointment) => (
                   <div key={appointment.id} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
                     <div>
-                      <p className="font-medium text-white">{appointment.patient}</p>
-                      <p className="text-sm text-gray-400">{appointment.service}</p>
+                      <p className="font-medium text-white">{appointment.patient.firstName} {appointment.patient.lastName}</p>
+                      <p className="text-sm text-gray-400">{appointment.service.name}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium text-white">{appointment.time}</p>
+                      <p className="text-sm font-medium text-white">{new Date(appointment.startTime).toLocaleTimeString()}</p>
                       <span className={`text-xs px-2 py-1 rounded-full ${
                         appointment.status === 'confirmed' 
                           ? 'bg-green-900 text-green-300' 

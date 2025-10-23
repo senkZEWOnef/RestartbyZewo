@@ -114,7 +114,7 @@ export default function ServicesPage() {
             <div className="flex items-center space-x-2 md:space-x-4">
               <Link href="/" className="flex items-center text-gray-300 hover:text-white transition-colors">
                 <ArrowLeft className="h-4 w-4 md:h-5 md:w-5 mr-1 md:mr-2" />
-                <span className="text-sm md:text-base">Back to Home</span>
+                <span className="text-sm md:text-base">{t('navigation.backToHome')}</span>
               </Link>
               <div className="flex items-center space-x-2">
                 <Heart className="h-5 w-5 md:h-6 md:w-6 text-gray-400" />
@@ -129,9 +129,9 @@ export default function ServicesPage() {
       <div className="container mx-auto px-4 py-4 md:py-8">
         {/* Page Header */}
         <div className="text-center mb-8 md:mb-12">
-          <h1 className="text-2xl md:text-4xl font-bold text-white mb-4">Our Services</h1>
+          <h1 className="text-2xl md:text-4xl font-bold text-white mb-4">{t('services.title')}</h1>
           <p className="text-base md:text-xl text-gray-300 max-w-2xl mx-auto px-4">
-            Comprehensive chiropractic care designed to address your specific needs and help you achieve optimal health and wellness.
+            {t('services.description')}
           </p>
         </div>
 
@@ -167,7 +167,7 @@ export default function ServicesPage() {
                   
                   <CardContent className="p-0">
                     <div className="mb-4 md:mb-6">
-                      <h4 className="font-semibold text-white mb-2 md:mb-3 text-sm md:text-base">Benefits Include:</h4>
+                      <h4 className="font-semibold text-white mb-2 md:mb-3 text-sm md:text-base">{t('services.benefitsInclude')}</h4>
                       <div className="grid gap-1 md:gap-2">
                         {service.benefits.map((benefit, index) => (
                           <div key={index} className="flex items-center text-gray-300">
@@ -180,10 +180,10 @@ export default function ServicesPage() {
                     
                     <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
                       <Button asChild className="flex-1 text-xs md:text-sm">
-                        <Link href="/book">Book This Service</Link>
+                        <Link href="/book">{t('services.bookThisService')}</Link>
                       </Button>
                       <Button variant="outline" className="flex-1 text-xs md:text-sm">
-                        Learn More
+                        {t('services.learnMore')}
                       </Button>
                     </div>
                   </CardContent>
@@ -195,16 +195,16 @@ export default function ServicesPage() {
 
         {/* CTA Section */}
         <div className="text-center mt-8 md:mt-16 bg-gray-800 text-white rounded-lg md:rounded-2xl p-6 md:p-8">
-          <h2 className="text-xl md:text-3xl font-bold mb-4">Not Sure Which Service You Need?</h2>
+          <h2 className="text-xl md:text-3xl font-bold mb-4">{t('services.notSureTitle')}</h2>
           <p className="text-base md:text-xl mb-6 text-gray-300 max-w-2xl mx-auto px-4">
-            Book a consultation and let our experts recommend the best treatment plan for you.
+            {t('services.notSureDesc')}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center max-w-md sm:max-w-none mx-auto">
             <Button size="lg" variant="secondary" className="w-full sm:w-auto text-sm md:text-base" asChild>
-              <Link href="/book">Book Consultation</Link>
+              <Link href="/book">{t('services.bookConsultation')}</Link>
             </Button>
             <Button size="lg" variant="outline" className="w-full sm:w-auto text-sm md:text-base bg-transparent border-white text-white hover:bg-white hover:text-gray-900">
-              Contact Us
+              {t('services.contactUs')}
             </Button>
           </div>
         </div>

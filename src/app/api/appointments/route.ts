@@ -148,8 +148,7 @@ export async function POST(request: NextRequest) {
         startTime: appointmentStart,
         endTime: appointmentEnd,
         status: 'PENDING',
-        notes: notes || '',
-        totalAmount: service.price
+        notes: notes || ''
       },
       include: {
         patient: {

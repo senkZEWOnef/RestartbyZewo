@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, ServiceCategory } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -67,42 +67,42 @@ async function main() {
       description: 'Free consultation to discuss your needs and explore treatment options.',
       duration: 15,
       price: 0,
-      category: 'CONSULTATION'
+      category: ServiceCategory.CONSULTATION
     },
     {
       name: 'Initial Evaluation & Consultation',
       description: 'Comprehensive assessment with detailed examination and treatment planning.',
       duration: 75,
       price: 15000, // $150.00 in cents
-      category: 'EVALUATION'
+      category: ServiceCategory.EVALUATION
     },
     {
       name: 'Chiropractic Visit',
       description: 'Focused chiropractic adjustment and manual therapy session.',
       duration: 15,
       price: 5500, // $55.00 in cents
-      category: 'TREATMENT'
+      category: ServiceCategory.TREATMENT
     },
     {
       name: 'Recovery Visit',
       description: 'Therapeutic recovery session using advanced manual therapy techniques.',
       duration: 30,
       price: 8000, // $80.00 in cents
-      category: 'RECOVERY'
+      category: ServiceCategory.RECOVERY
     },
     {
       name: 'Restart Relief and Movement Visit',
       description: 'Comprehensive rehabilitation session combining therapy and movement exercises.',
       duration: 60,
       price: 12000, // $120.00 in cents
-      category: 'REHABILITATION'
+      category: ServiceCategory.REHABILITATION
     },
     {
       name: 'Medical Plan Initial Evaluation',
       description: 'Medical evaluation designed for insurance-based treatment plans.',
       duration: 45,
       price: 10000, // $100.00 in cents
-      category: 'MEDICAL'
+      category: ServiceCategory.MEDICAL
     }
   ];
 

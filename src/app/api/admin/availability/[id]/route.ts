@@ -23,12 +23,13 @@ function verifyAdminToken(request: NextRequest) {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     verifyAdminToken(request);
     const body = await request.json();
-    const availabilityId = params.id;
+    const resolvedParams = await params;
+    const availabilityId = resolvedParams.id;
 
     const { dayOfWeek, startTime, endTime, active } = body;
 
@@ -117,11 +118,12 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     verifyAdminToken(request);
-    const availabilityId = params.id;
+    const resolvedParams = await params;
+    const availabilityId = resolvedParams.id;
 
     // Check if availability slot exists
     const existingSlot = await prisma.availability.findUnique({

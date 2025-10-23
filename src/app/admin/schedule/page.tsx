@@ -220,7 +220,7 @@ export default function AdminSchedule() {
     const handleSubmit = (e: React.FormEvent) => {
       e.preventDefault();
       onSave({
-        id: slot?.id || 0,
+        id: slot?.id || '',
         dayOfWeek,
         startTime,
         endTime,
