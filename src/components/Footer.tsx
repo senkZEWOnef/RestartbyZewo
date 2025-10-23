@@ -49,12 +49,20 @@ export default function Footer() {
         <div className="border-t border-gray-800 mt-6 md:mt-8 pt-6 md:pt-8 text-center text-gray-400">
           <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
             <p className="text-xs md:text-sm">{t('home.footerCopyright')}</p>
-            <Link 
-              href="/admin" 
-              className="text-xs text-gray-500 hover:text-gray-300 transition-colors px-3 py-1 rounded border border-gray-700 hover:border-gray-500"
-            >
-              Admin Portal
-            </Link>
+            <div className="flex items-center space-x-4">
+              <Link 
+                href="/admin" 
+                className="text-xs text-gray-600 hover:text-gray-400 transition-colors font-mono"
+              >
+                GA
+              </Link>
+              <Link 
+                href="/admin" 
+                className="text-xs text-gray-500 hover:text-gray-300 transition-colors px-3 py-1 rounded border border-gray-700 hover:border-gray-500"
+              >
+                Admin Portal
+              </Link>
+            </div>
           </div>
         </div>
       </div>
