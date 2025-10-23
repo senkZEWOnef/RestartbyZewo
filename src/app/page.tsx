@@ -119,7 +119,6 @@ export default function Home() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
             <Link href="/services" className="text-gray-300 hover:text-white transition-colors">{t('navigation.services')}</Link>
-            <Link href="/about" className="text-gray-300 hover:text-white transition-colors">{t('navigation.about')}</Link>
             <Link href="/contact" className="text-gray-300 hover:text-white transition-colors">{t('navigation.contact')}</Link>
             <LanguageToggle />
             <Button variant="outline" size="sm" asChild>
@@ -145,7 +144,6 @@ export default function Home() {
         {/* Mobile Menu Links */}
         <div className="md:hidden mt-4 flex justify-center space-x-6">
           <Link href="/services" className="text-sm text-gray-300 hover:text-white transition-colors">{t('navigation.services')}</Link>
-          <Link href="/about" className="text-sm text-gray-300 hover:text-white transition-colors">{t('navigation.about')}</Link>
           <Link href="/contact" className="text-sm text-gray-300 hover:text-white transition-colors">{t('navigation.contact')}</Link>
         </div>
       </header>
@@ -473,7 +471,6 @@ export default function Home() {
             <div>
               <h3 className="font-semibold mb-3 md:mb-4 text-sm md:text-base">{t('home.footerCompany')}</h3>
               <ul className="space-y-1 md:space-y-2 text-gray-400 text-sm md:text-base">
-                <li><Link href="/about" className="hover:text-white transition-colors">{t('home.footerAboutUs')}</Link></li>
                 <li><Link href="/contact" className="hover:text-white transition-colors">{t('home.footerContact')}</Link></li>
                 <li><Link href="/privacy" className="hover:text-white transition-colors">{t('home.footerPrivacyPolicy')}</Link></li>
                 <li><Link href="/terms" className="hover:text-white transition-colors">{t('home.footerTermsOfService')}</Link></li>

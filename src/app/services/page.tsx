@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Clock, DollarSign, Heart, CheckCircle } from "lucide-react";
+import { useLanguage, LanguageToggle } from "@/contexts/LanguageContext";
+import Footer from "@/components/Footer";
 
 const services = [
   {
@@ -99,6 +103,8 @@ const formatCurrency = (cents: number) => {
 };
 
 export default function ServicesPage() {
+  const { t } = useLanguage();
+  
   return (
     <div className="min-h-screen bg-black">
       {/* Header */}
@@ -115,9 +121,7 @@ export default function ServicesPage() {
                 <span className="text-lg md:text-xl font-bold text-white">Restart</span>
               </div>
             </div>
-            <Button size="sm" asChild>
-              <Link href="/book">Book</Link>
-            </Button>
+            <LanguageToggle />
           </div>
         </div>
       </header>
@@ -205,6 +209,8 @@ export default function ServicesPage() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

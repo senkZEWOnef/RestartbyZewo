@@ -216,5 +216,51 @@
     "emailNotifications": "Notificaciones por Correo",
     "smsNotifications": "Notificaciones por SMS",
     "promotionalEmails": "Correos Promocionales"
+  },
+  "contact": {
+    "title": "Ponte en Contacto",
+    "subtitle": "¿Tienes preguntas sobre nuestros servicios o quieres programar una cita? Estamos aquí para ayudarte a comenzar tu camino hacia la recuperación.",
+    "info": {
+      "title": "Información de Contacto",
+      "subtitle": "Contáctanos a través de cualquiera de estos canales"
+    },
+    "address": {
+      "title": "Nuestra Ubicación"
+    },
+    "phone": {
+      "title": "Teléfono"
+    },
+    "email": {
+      "title": "Correo"
+    },
+    "hours": {
+      "title": "Horarios de Atención",
+      "weekdays": "Lunes - Viernes",
+      "weekends": "Sábado - Domingo",
+      "closed": "Cerrado"
+    },
+    "social": {
+      "title": "Síguenos",
+      "subtitle": "Mantente conectado para consejos de salud y actualizaciones"
+    },
+    "emergency": {
+      "title": "Emergencia Médica",
+      "description": "Para emergencias médicas, llama al 911 o visita la sala de emergencias más cercana. Este formulario de contacto no se monitorea las 24 horas."
+    },
+    "form": {
+      "title": "Envíanos un Mensaje",
+      "subtitle": "Completa el formulario y te responderemos lo antes posible.",
+      "name": "Nombre Completo",
+      "namePlaceholder": "Tu nombre completo",
+      "email": "Correo Electrónico",
+      "phone": "Número de Teléfono",
+      "subject": "Asunto",
+      "subjectPlaceholder": "¿En qué podemos ayudarte?",
+      "message": "Mensaje",
+      "messagePlaceholder": "Cuéntanos cómo podemos ayudarte...",
+      "send": "Enviar Mensaje",
+      "sending": "Enviando...",
+      "required": "Campos requeridos"
+    }
   }
 }

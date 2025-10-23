@@ -41,6 +41,17 @@ interface Message {
   };
 }
 
+interface Contact {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  subject: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
 interface Patient {
   id: string;
   firstName: string;
@@ -52,8 +63,11 @@ export default function AdminMessages() {
   const router = useRouter();
   const { user, isAuthenticated, token, isLoading } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [activeTab, setActiveTab] = useState<'patients' | 'contacts'>('patients');
   const [showCompose, setShowCompose] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState("");
@@ -80,11 +94,22 @@ export default function AdminMessages() {
     try {
       const headers = getAuthHeaders(token);
       
-      // Load messages
+      // Load messages from registered patients
       const messagesResponse = await fetch('/api/messages', { headers });
       if (messagesResponse.ok) {
         const messagesData = await messagesResponse.json();
-        setMessages(messagesData.messages || []);
+        // Filter out contact form messages to show only patient messages
+        const patientMessages = messagesData.messages?.filter((msg: Message) => 
+          msg.messageType !== 'CONTACT_FORM'
+        ) || [];
+        setMessages(patientMessages);
+      }
+
+      // Load contact form submissions
+      const contactsResponse = await fetch('/api/admin/contacts', { headers });
+      if (contactsResponse.ok) {
+        const contactsData = await contactsResponse.json();
+        setContacts(contactsData.contacts || []);
       }
 
       // Load patients for compose
@@ -144,6 +169,24 @@ export default function AdminMessages() {
       ));
     } catch (error) {
       console.error('Error marking message as read:', error);
+    }
+  };
+
+  const markContactAsRead = async (contactId: string) => {
+    if (!token) return;
+
+    try {
+      const headers = getAuthHeaders(token);
+      await fetch(`/api/admin/contacts/${contactId}/read`, {
+        method: 'PUT',
+        headers
+      });
+      
+      setContacts(prev => prev.map(contact => 
+        contact.id === contactId ? { ...contact, isRead: true } : contact
+      ));
+    } catch (error) {
+      console.error('Error marking contact as read:', error);
     }
   };
 
@@ -208,52 +251,131 @@ export default function AdminMessages() {
           <div className="lg:col-span-1">
             <Card className="bg-gray-900 border-gray-800">
               <CardHeader>
-                <CardTitle className="text-white text-lg">Inbox</CardTitle>
-                <CardDescription className="text-gray-400">
-                  {messages.filter(m => !m.isRead).length} unread messages
-                </CardDescription>
+                <div className="flex items-center justify-between mb-4">
+                  <CardTitle className="text-white text-lg">Communications</CardTitle>
+                </div>
+                
+                {/* Tabs */}
+                <div className="flex space-x-1 bg-gray-800 rounded-lg p-1">
+                  <button
+                    onClick={() => {
+                      setActiveTab('patients');
+                      setSelectedMessage(null);
+                      setSelectedContact(null);
+                    }}
+                    className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors ${
+                      activeTab === 'patients'
+                        ? 'bg-gray-700 text-white'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    Patients ({messages.filter(m => !m.isRead).length})
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('contacts');
+                      setSelectedMessage(null);
+                      setSelectedContact(null);
+                    }}
+                    className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors ${
+                      activeTab === 'contacts'
+                        ? 'bg-gray-700 text-white'
+                        : 'text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    Contact Forms ({contacts.filter(c => !c.isRead).length})
+                  </button>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {messages.length === 0 ? (
-                    <p className="text-gray-400 text-center py-8">No messages</p>
-                  ) : (
-                    messages.map((message) => (
-                      <div 
-                        key={message.id}
-                        onClick={() => {
-                          setSelectedMessage(message);
-                          if (!message.isRead) markAsRead(message.id);
-                        }}
-                        className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                          selectedMessage?.id === message.id 
-                            ? 'bg-gray-700' 
-                            : 'bg-gray-800 hover:bg-gray-750'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between mb-1">
-                          <div className="flex items-center space-x-2">
-                            {message.isRead ? (
-                              <MailOpen className="h-4 w-4 text-gray-400" />
-                            ) : (
-                              <Mail className="h-4 w-4 text-blue-400" />
-                            )}
-                            <p className={`text-sm ${message.isRead ? 'text-gray-300' : 'text-white font-medium'}`}>
-                              {message.fromUser.firstName} {message.fromUser.lastName}
-                            </p>
+                  {activeTab === 'patients' ? (
+                    messages.length === 0 ? (
+                      <p className="text-gray-400 text-center py-8">No patient messages</p>
+                    ) : (
+                      messages.map((message) => (
+                        <div 
+                          key={message.id}
+                          onClick={() => {
+                            setSelectedMessage(message);
+                            setSelectedContact(null);
+                            if (!message.isRead) markAsRead(message.id);
+                          }}
+                          className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                            selectedMessage?.id === message.id 
+                              ? 'bg-gray-700' 
+                              : 'bg-gray-800 hover:bg-gray-750'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between mb-1">
+                            <div className="flex items-center space-x-2">
+                              {message.isRead ? (
+                                <MailOpen className="h-4 w-4 text-gray-400" />
+                              ) : (
+                                <Mail className="h-4 w-4 text-blue-400" />
+                              )}
+                              <p className={`text-sm ${message.isRead ? 'text-gray-300' : 'text-white font-medium'}`}>
+                                {message.fromUser.firstName} {message.fromUser.lastName}
+                              </p>
+                            </div>
+                            <span className="text-xs text-gray-500">
+                              {new Date(message.createdAt).toLocaleDateString()}
+                            </span>
                           </div>
-                          <span className="text-xs text-gray-500">
-                            {new Date(message.createdAt).toLocaleDateString()}
-                          </span>
+                          <p className={`text-sm ${message.isRead ? 'text-gray-400' : 'text-gray-300 font-medium'}`}>
+                            {message.subject}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {message.content.substring(0, 50)}...
+                          </p>
                         </div>
-                        <p className={`text-sm ${message.isRead ? 'text-gray-400' : 'text-gray-300 font-medium'}`}>
-                          {message.subject}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {message.content.substring(0, 50)}...
-                        </p>
-                      </div>
-                    ))
+                      ))
+                    )
+                  ) : (
+                    contacts.length === 0 ? (
+                      <p className="text-gray-400 text-center py-8">No contact form submissions</p>
+                    ) : (
+                      contacts.map((contact) => (
+                        <div 
+                          key={contact.id}
+                          onClick={() => {
+                            setSelectedContact(contact);
+                            setSelectedMessage(null);
+                            if (!contact.isRead) markContactAsRead(contact.id);
+                          }}
+                          className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                            selectedContact?.id === contact.id 
+                              ? 'bg-gray-700' 
+                              : 'bg-gray-800 hover:bg-gray-750'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between mb-1">
+                            <div className="flex items-center space-x-2">
+                              {contact.isRead ? (
+                                <MailOpen className="h-4 w-4 text-gray-400" />
+                              ) : (
+                                <Mail className="h-4 w-4 text-orange-400" />
+                              )}
+                              <p className={`text-sm ${contact.isRead ? 'text-gray-300' : 'text-white font-medium'}`}>
+                                {contact.name}
+                              </p>
+                              <span className="text-xs bg-orange-900 text-orange-200 px-2 py-1 rounded">
+                                New Contact
+                              </span>
+                            </div>
+                            <span className="text-xs text-gray-500">
+                              {new Date(contact.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className={`text-sm ${contact.isRead ? 'text-gray-400' : 'text-gray-300 font-medium'}`}>
+                            {contact.subject}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {contact.message.substring(0, 50)}...
+                          </p>
+                        </div>
+                      ))
+                    )
                   )}
                 </div>
               </CardContent>
@@ -343,6 +465,40 @@ export default function AdminMessages() {
                 <CardContent>
                   <div className="prose prose-invert max-w-none">
                     <p className="text-gray-300 whitespace-pre-wrap">{selectedMessage.content}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : selectedContact ? (
+              <Card className="bg-gray-900 border-gray-800">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-white flex items-center">
+                        {selectedContact.subject}
+                        <span className="text-xs bg-orange-900 text-orange-200 px-2 py-1 rounded ml-2">
+                          Contact Form
+                        </span>
+                      </CardTitle>
+                      <CardDescription className="text-gray-400">
+                        From: {selectedContact.name} ({selectedContact.email})
+                        {selectedContact.phone && ` • Phone: ${selectedContact.phone}`}
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs text-gray-500">
+                        {new Date(selectedContact.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="prose prose-invert max-w-none">
+                    <p className="text-gray-300 whitespace-pre-wrap">{selectedContact.message}</p>
+                  </div>
+                  <div className="mt-6 p-4 bg-blue-900/20 border border-blue-800 rounded-lg">
+                    <p className="text-blue-200 text-sm">
+                      <strong>Note:</strong> This person is not registered as a patient. You can respond by email or phone, or invite them to create a patient account to use the secure messaging system.
+                    </p>
                   </div>
                 </CardContent>
               </Card>

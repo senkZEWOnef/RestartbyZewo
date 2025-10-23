@@ -216,5 +216,51 @@
     "emailNotifications": "Email Notifications",
     "smsNotifications": "SMS Notifications",
     "promotionalEmails": "Promotional Emails"
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "subtitle": "Have questions about our services or want to schedule an appointment? We're here to help you start your recovery journey.",
+    "info": {
+      "title": "Contact Information",
+      "subtitle": "Reach out to us through any of these channels"
+    },
+    "address": {
+      "title": "Our Location"
+    },
+    "phone": {
+      "title": "Phone"
+    },
+    "email": {
+      "title": "Email"
+    },
+    "hours": {
+      "title": "Business Hours",
+      "weekdays": "Monday - Friday",
+      "weekends": "Saturday - Sunday",
+      "closed": "Closed"
+    },
+    "social": {
+      "title": "Follow Us",
+      "subtitle": "Stay connected for health tips and updates"
+    },
+    "emergency": {
+      "title": "Medical Emergency",
+      "description": "For medical emergencies, please call 911 or visit your nearest emergency room. This contact form is not monitored 24/7."
+    },
+    "form": {
+      "title": "Send us a Message",
+      "subtitle": "Fill out the form below and we'll get back to you as soon as possible.",
+      "name": "Full Name",
+      "namePlaceholder": "Your full name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "subject": "Subject",
+      "subjectPlaceholder": "What can we help you with?",
+      "message": "Message",
+      "messagePlaceholder": "Tell us how we can help you...",
+      "send": "Send Message",
+      "sending": "Sending...",
+      "required": "Required fields"
+    }
   }
 }
